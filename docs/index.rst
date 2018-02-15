@@ -130,19 +130,22 @@ There might be cases where you want to install a version of Parcels that has not
 
 Then, just after step 2 of :ref:`installing-parcels` above, remove the conda-forge package again, and use Pip to install Parcels from Github::
 
-    source $HOME/miniconda2/bin/activate py2_parcels_master  # Linux / macOS
-    activate py2_parcels_master                              # Windows
+    source $HOME/miniconda2/bin/activate py2_parcels  # Linux / macOS
+    activate py2_parcels                              # Windows
 
     conda remove parcels
     pip install git+https://github.com/OceanParcels/parcels.git@master
-
 
 .. _installation-dev:
 
 Installation for developers
 ===========================
 
-Parcels depends on a working Python installation, a netCDF installation, a C compiler, and various Python packages.  If you prefer to maintain your own Python installation providing all this, ``git clone`` the `master branch of Parcels <https://github.com/OceanParcels/parcels>`_ and manually ``pip install`` all packages lister under ``dependencies`` in the `environment.yml <https://raw.githubusercontent.com/OceanParcels/parcels/master/environment.yml>`_ file.
+Parcels depends on a working Python installation, a netCDF installation, a C compiler, and various Python packages.  If you prefer to maintain your own Python installation providing all this, ``git clone`` the `master branch of Parcels <https://github.com/OceanParcels/parcels>`_ and manually ``pip install`` all packages lister under ``dependencies`` in the environment files
+
+    * `environment_linux.yml <https://raw.githubusercontent.com/OceanParcels/parcels/master/environment_linux.yml>`_ for Linux,
+    * `environment_osx.yml <https://raw.githubusercontent.com/OceanParcels/parcels/master/environment_osx.yml>`_ for OSX, or
+    * `environment_win.yml <https://raw.githubusercontent.com/OceanParcels/parcels/master/environment_win.yml>`_ for Windows.
 
 Then, install Parcels in an `editable way <https://pip.pypa.io/en/stable/reference/pip_install/?highlight=editable#cmdoption-e>`_ by running::
 
