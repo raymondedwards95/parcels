@@ -330,3 +330,24 @@ class FieldSet(object):
                 advance = advance2
                 gnew.advanced = True
             f.advancetime(fnew, advance == 1)
+
+    def computeChunk(self, time, signdt):
+        for g in self.gridset.grids:
+            g.advanced = 0
+        nextTime = np.infty
+
+        for f in self.fields:
+            if f.name == 'UV':
+                continue
+            g = f.grid
+            if g.advanced == 0:
+                if (time-g.time[1]) > 0:
+                    g.timeInd += 1
+                    g.time = g.timeFull[g.timeInd:g.timeInd+3]
+                    g.advanced = 1
+            nextTime = min(nextTime, g.time[2])
+            if g.advanced == 1:
+                f.data[0:2, :] = f.data[1:3, :]
+                f.data[2, :] = f.dataDask[g.timeInd+2, :].compute()
+                f.data = f.data.astype(np.float32)
+        return nextTime
