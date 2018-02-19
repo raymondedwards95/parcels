@@ -4,6 +4,7 @@ from parcels.grid import RectilinearZGrid
 from parcels.scripts import compute_curvilinearGrid_rotationAngles
 from parcels.loggers import logger
 import numpy as np
+import dask.array as da
 from os import path
 from glob import glob
 from copy import deepcopy
@@ -334,6 +335,8 @@ class FieldSet(object):
             f.advancetime(fnew, advance == 1)
 
     def computeChunk(self, time, signdt):
+        if not isinstance(self.U, da.core.Array):
+            return np.infty * signdt
         for g in self.gridset.grids:
             g.advanced = 0
         nextTime = np.infty
