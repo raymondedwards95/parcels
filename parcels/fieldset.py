@@ -339,30 +339,48 @@ class FieldSet(object):
             return np.infty * signdt
         if  self.U.grid.timeInd == -1:
             for g in self.gridset.grids:
-                g.timeInd = 0
-                g.time = g.timeFull[0:3]
+                if signdt == 1:
+                    g.time = g.timeFull[:3]
+                    g.timeInd = 0
+                else:
+                    g.time = g.timeFull[-3:]
+                    g.timeInd = len(g.timeFull)-3
                 g.tdim = 3
             for f in self.fields:
                 if f.name == 'UV':
                     continue
-                f.data = f.dataDask[0:3, :].compute()
+                if signdt == 1:
+                    f.data = f.dataDask[:3, :].compute()
+                else:
+                    f.data = f.dataDask[-3:, :].compute()
                 f.data = f.data.astype(np.float32)
         for g in self.gridset.grids:
             g.advanced = 0
-        nextTime = np.infty
+        nextTime = np.infty * signdt
 
         for f in self.fields:
             if f.name == 'UV':
                 continue
             g = f.grid
             if g.advanced == 0:
-                if (time-g.time[1]) > 0:
-                    g.timeInd += 1
-                    g.time = g.timeFull[g.timeInd:g.timeInd+3]
-                    g.advanced = 1
-            nextTime = min(nextTime, g.time[2])
+                if signdt == 1:
+                    if (time-g.time[1]) > 0:
+                        g.timeInd += 1
+                        g.time = g.timeFull[g.timeInd:g.timeInd+3]
+                        g.advanced = 1
+                    nextTime = min(nextTime, g.time[2])
+                else:
+                    if (time-g.time[1]) < 0:
+                        g.timeInd -= 1
+                        g.time = g.timeFull[g.timeInd:g.timeInd+3]
+                        g.advanced = 1
+                    nextTime = max(nextTime, g.time[0])
             if g.advanced == 1:
-                f.data[0:2, :] = f.data[1:3, :]
-                f.data[2, :] = f.dataDask[g.timeInd+2, :].compute()
+                if signdt == 1:
+                    f.data[0:2, :] = f.data[1:3, :]
+                    f.data[2, :] = f.dataDask[g.timeInd+2, :].compute()
+                else:
+                    f.data[1:3, :] = f.data[0:2, :]
+                    f.data[0, :] = f.dataDask[g.timeInd, :].compute()
                 f.data = f.data.astype(np.float32)
         return nextTime
